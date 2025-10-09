@@ -12,6 +12,7 @@ public class PlayerData
     public string country;
     public int age;
     public float gender;
+    public int userId;
     public string dayTime;
 
     public PlayerData(string name, string country, int age, float gender, string dayTime)

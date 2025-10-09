@@ -20,6 +20,12 @@ echo "Connected successfully";
 $sql = "INSERT INTO UsersData (name, country, age, gender, DayTime) 
         VALUES ('John', 'Angola', 15, 1, '2025-03-01 13:44:00')";
 
+$sql = "INSERT INTO Sesions (DateTime, playerId) 
+        VALUES ('2025-03-01 13:44:00', 1)";
+
+$sql = "INSERT INTO Revenue (Item,) 
+        VALUES ()";
+
 if ($conn->query($sql) === TRUE) {
     echo "New record created successfully";
 } else {
