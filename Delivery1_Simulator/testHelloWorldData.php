@@ -17,32 +17,19 @@ echo "Connected successfully";
 
 
 // Data base connection done before
-$sql = "INSERT INTO UsersData (name, country, age, gender, DayTime) 
-        VALUES ('John', 'Angola', 15, 1, '2025-03-01 13:44:00')";
+$playerDataJSON = $_POST['playerData'];
+$playerData = json_decode($playerDataJSON, true);
 
-if ($conn->query($sql) === TRUE) {
-    echo "New record created successfully";
-} else {
-    echo "Error: " . $sql . "<br>" . $conn->error;
+// Validar que se recibieron los datos correctamente
+if (!$playerData) {
+    die("Error decoding JSON data.");
 }
 
-$sql2 = "INSERT INTO Sesions (DateTime, playerId) 
-        VALUES ('2025-03-01 13:44:00', 1)";
-
-if ($conn->query($sql2) === TRUE) {
-    echo "New record created successfully";
-} else {
-    echo "Error: " . $sql2 . "<br>" . $conn->error;
-}
-
-
-$sql3 = "INSERT INTO Revenue (Item,DateTime,sesionId) 
-        VALUES (1,'2025-03-01 13:44:00', 1)";
-
-if ($conn->query($sql3) === TRUE) {
-    echo "New record created successfully";
-} else {
-    echo "Error: " . $sql3 . "<br>" . $conn->error;
-}
+// Asignar los valores del JSON a variables PHP
+$name = $conn->real_escape_string($playerData['name']);
+$country = $conn->real_escape_string($playerData['country']);
+$age = (int)$playerData['age'];
+$gender = (float)$playerData['gender'];
+$dayTime = $conn->real_escape_string($playerData['dayTime']);
 
 ?>

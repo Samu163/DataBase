@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -27,10 +28,12 @@ public class PlayerData
 
 public class NewSimulator : MonoBehaviour
 {
+
+    int playerID;
     // Start is called before the first frame update
     void OnEnable()
     {
-        Simulator.OnNewPlayer += StoreData;       
+        Simulator.OnNewPlayer += EncodePlayerData;       
     }
 
     // Update is called once per frame
@@ -40,25 +43,45 @@ public class NewSimulator : MonoBehaviour
     }
 
     // Método que maneja el envío de datos
-    public void StoreData(string name, string country, int age, float gender, DateTime dayTime)
+    //public void StoreData(string name, string country, int age, float gender, DateTime dayTime)
+    //{
+    //    PlayerData playerData = new PlayerData(name, country, age, gender, dayTime.ToString("yyyy-MM-dd HH:mm:ss"));
+
+    //    string jsonData = JsonUtility.ToJson(playerData);
+
+    //    Debug.Log(jsonData);
+
+    //    StartCoroutine(SendDataToServer(jsonData));
+    //}
+
+    public void EncodePlayerData(string name, string country, int age, float gender, DateTime dayTime)
     {
-        PlayerData playerData = new PlayerData(name, country, age, gender, dayTime.ToString("yyyy-MM-dd HH:mm:ss"));
+        string correctName = name.Replace("'", " ");
+        var fields = new Dictionary<string, string>
+        {
+            { "name", correctName },
+            { "country", country },
+            { "age", age.ToString() },
+            { "gender", gender.ToString(CultureInfo.InvariantCulture)},
+            { "dateTime", dayTime.ToString("o") }
 
-        string jsonData = JsonUtility.ToJson(playerData);
+        };
 
-        Debug.Log(jsonData);
-
-        StartCoroutine(SendDataToServer(jsonData));
+        StartCoroutine(SendDataToServer(fields, "https://citmalumnes.upc.es/~samuelm1/testHelloWorldData.php"));
     }
 
     // Corutina que envía los datos al servidor
-    private IEnumerator SendDataToServer(string jsonData)
+    private IEnumerator SendDataToServer(Dictionary<string, string> fields, string url)
     {
         WWWForm form = new WWWForm();
 
-        form.AddField("playerData", jsonData);
+        foreach(var kvp in fields)
+        {
+            form.AddField(kvp.Key, kvp.Value);
+        }
 
-        using (UnityWebRequest www = UnityWebRequest.Post("https://citmalumnes.upc.es/~samuelm1/testHelloWorldData.php", form))
+
+        using (UnityWebRequest www = UnityWebRequest.Post(url, form))
         {
             yield return www.SendWebRequest();
 
@@ -70,6 +93,8 @@ public class NewSimulator : MonoBehaviour
             else
             {
                 Debug.Log("Form upload complete!");
+                
+                Debug.Log(www.downloadHandler.text);
             }
         }
     }
