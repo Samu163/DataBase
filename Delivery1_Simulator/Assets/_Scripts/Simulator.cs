@@ -56,7 +56,7 @@ public class Simulator : MonoBehaviour
             Countries.Add(((AllCountries)rdm).ToString());
         }
         MakeOnePlayer();
-       
+        
      
     }
 
@@ -207,8 +207,8 @@ public class Simulator : MonoBehaviour
 
 public class CallbackEvents
 {
-    public static Action<uint> OnEndSessionCallback;
-    public static Action<uint> OnNewSessionCallback;
-    public static Action<uint> OnAddPlayerCallback;
-    public static Action<uint> OnItemBuyCallback;
+    public static Action<uint> OnEndSessionCallback;//player id
+    public static Action<uint> OnNewSessionCallback;//sessionid
+    public static Action<uint> OnAddPlayerCallback;//playerId
+    public static Action<uint> OnItemBuyCallback;//sessionId
 }

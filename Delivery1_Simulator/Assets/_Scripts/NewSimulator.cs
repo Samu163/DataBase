@@ -1,11 +1,10 @@
-using System;
+ï»¿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
+using System.Net;
 using UnityEngine;
 using UnityEngine.Networking;
 
-// Clase para almacenar los datos del jugador
 [System.Serializable]
 public class PlayerData
 {
@@ -18,7 +17,7 @@ public class PlayerData
 
     public PlayerData(string name, string country, int age, float gender, string dayTime)
     {
-        this.name = name; 
+        this.name = name;
         this.country = country;
         this.age = age;
         this.gender = gender;
@@ -26,81 +25,94 @@ public class PlayerData
     }
 }
 
+[System.Serializable]
+public class ServerResponse
+{
+    public bool success;
+    public string message;
+    public int id;
+    public string error;
+    public ResponseData data;
+}
+
+[System.Serializable]
+public class ResponseData
+{
+    public string name;
+    public string country;
+    public int age;
+    public float gender;
+    public string dayTime;
+}
+
 public class NewSimulator : MonoBehaviour
 {
-
-    int playerID;
-    // Start is called before the first frame update
     void OnEnable()
     {
-        Simulator.OnNewPlayer += EncodePlayerData;       
+        ServicePointManager.ServerCertificateValidationCallback =
+            (sender, certificate, chain, sslPolicyErrors) => true;
+
+        Simulator.OnNewPlayer += EncodePlayerData;
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnDisable()
     {
-        
+        Simulator.OnNewPlayer -= EncodePlayerData;
     }
-
-    // Método que maneja el envío de datos
-    //public void StoreData(string name, string country, int age, float gender, DateTime dayTime)
-    //{
-    //    PlayerData playerData = new PlayerData(name, country, age, gender, dayTime.ToString("yyyy-MM-dd HH:mm:ss"));
-
-    //    string jsonData = JsonUtility.ToJson(playerData);
-
-    //    Debug.Log(jsonData);
-
-    //    StartCoroutine(SendDataToServer(jsonData));
-    //}
 
     public void EncodePlayerData(string name, string country, int age, float gender, DateTime dayTime)
     {
-        string correctName = name.Replace("'", " ");
-        var fields = new Dictionary<string, string>
-        {
-            { "name", correctName },
-            { "country", country },
-            { "age", age.ToString() },
-            { "gender", gender.ToString(CultureInfo.InvariantCulture)},
-            { "dateTime", dayTime.ToString("o") }
+        PlayerData playerData = new PlayerData(
+            name.Replace("'", " "),
+            country,
+            age,
+            gender,
+            dayTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
+        );
 
-        };
+        string jsonData = JsonUtility.ToJson(playerData);
+        Debug.Log($"<color=yellow> NEW PLAYER:</color> {jsonData}");
 
-        StartCoroutine(SendDataToServer(fields, "https://citmalumnes.upc.es/~samuelm1/testHelloWorldData.php"));
+        StartCoroutine(SendJsonToServer(jsonData, "https://citmalumnes.upc.es/~samuelm1/testHelloWorldData.php"));
     }
 
-    // Corutina que envía los datos al servidor
-    private IEnumerator SendDataToServer(Dictionary<string, string> fields, string url)
+    private IEnumerator SendJsonToServer(string jsonData, string url)
     {
-        WWWForm form = new WWWForm();
-
-        foreach(var kvp in fields)
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
+        using (UnityWebRequest www = new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST))
         {
-            form.AddField(kvp.Key, kvp.Value);
-        }
+            www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-
-        using (UnityWebRequest www = UnityWebRequest.Post(url, form))
-        {
             yield return www.SendWebRequest();
 
-            // Comprobamos si la solicitud fue exitosa
             if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log(www.error);
+                Debug.LogError($" Error sending player: {www.error}");
             }
             else
             {
-                Debug.Log("Form upload complete!");
-                
-                Debug.Log(www.downloadHandler.text);
+                try
+                {
+                    var response = JsonUtility.FromJson<ServerResponse>(www.downloadHandler.text);
+                    if (response.success)
+                    {
+                        Debug.Log($"<color=green> Player saved! ID: {response.id} - {response.data.name}</color>");
+
+                        // DISPARAR CALLBACK con el player_id para crear sesiÃ³n
+                        CallbackEvents.OnAddPlayerCallback?.Invoke((uint)response.id);
+                    }
+                    else
+                    {
+                        Debug.LogError($" Server error: {response.error}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($" Error parsing response: {e.Message}");
+                }
             }
         }
     }
 }
-
-
-
-
-
