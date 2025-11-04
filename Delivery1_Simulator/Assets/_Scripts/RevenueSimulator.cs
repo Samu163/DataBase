@@ -94,7 +94,7 @@ public class RevenueSimulator : MonoBehaviour
     private IEnumerator SendRevenueToServer(string jsonData)
     {
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
-        using (UnityWebRequest www = new UnityWebRequest("https://citmalumnes.upc.es/~samuelm1/revenue.php", UnityWebRequest.kHttpVerbPOST))
+        using (UnityWebRequest www = new UnityWebRequest("https://citmalumnes.upc.es/~samuelm1/purchases.php", UnityWebRequest.kHttpVerbPOST))
         {
             www.uploadHandler = new UploadHandlerRaw(bodyRaw);
             www.downloadHandler = new DownloadHandlerBuffer();

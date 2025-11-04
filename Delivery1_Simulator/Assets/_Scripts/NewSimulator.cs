@@ -99,8 +99,7 @@ public class NewSimulator : MonoBehaviour
                     if (response.success)
                     {
                         Debug.Log($"<color=green> Player saved! ID: {response.id} - {response.data.name}</color>");
-
-                        // DISPARAR CALLBACK con el player_id para crear sesión
+                        //Session
                         CallbackEvents.OnAddPlayerCallback?.Invoke((uint)response.id);
                     }
                     else
