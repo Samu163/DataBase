@@ -1,20 +1,8 @@
-# --- INICIO DEL CÓDIGO ---
-
-# 1. INSTALAR Y CARGAR PAQUETES
-# install.packages("ggplot2") # Descomenta si no lo tienes
 library(ggplot2)
-
-# 2. CARGAR LOS DATOS
-# Cargando el archivo "MAU (4).csv"
 df_mau <- read.csv("MAU (4).csv")
 
-# 3. PREPARAR LOS DATOS
-# Usando la columna 'day' y asumiendo formato YYYY-MM-DD
-# Ajusta el 'format' si es necesario (ej. "%d/%m/%Y")
 df_mau$day <- as.Date(df_mau$day, format = "%Y-%m-%d")
 
-
-# 4. ESTABLECER IDIOMA PARA LAS FECHAS (Opcional, para meses en inglés)
 tryCatch({
   Sys.setlocale("LC_TIME", "en_US.UTF-8")
 }, error = function(e) {
@@ -26,20 +14,12 @@ tryCatch({
 })
 
 
-# 5. CÁLCULO MANUAL DEL MODELO Y PREDICCIONES
 if (nrow(df_mau) > 0) {
     
-    # 5.1. Creamos el modelo lineal usando TUS columnas
-    # Predecimos 'mau_30_days' basándonos en 'day'
     model_mau <- lm(mau_30_days ~ as.numeric(day), data = df_mau)
-    
-    # 5.2. Obtenemos el INTERVALO DE CONFIANZA (95%)
     pred_conf_mau <- predict(model_mau, interval = "confidence", level = 0.95)
-    
-    # 5.3. Obtenemos el INTERVALO DE PREDICCIÓN (95%)
     pred_pred_mau <- predict(model_mau, interval = "prediction", level = 0.95)
 
-    # 5.4. Combinamos TODO en un solo data frame
     df_completo_mau <- data.frame(
       day = df_mau$day,
       mau = df_mau$mau_30_days, # Usamos 'mau_30_days' como el valor Y
@@ -49,47 +29,34 @@ if (nrow(df_mau) > 0) {
       lwr_pred = pred_pred_mau[, "lwr"],  
       upr_pred = pred_pred_mau[, "upr"]   
     )
-    
 
-    # 6. CREAR LA GRÁFICA CON TODAS LAS LÍNEAS
     
-    # Usamos 'day' para X y 'mau' (que ahora es 'mau_30_days') para Y
     ggplot(data = df_completo_mau, aes(x = day)) +
         
-        # Capa 1: Puntos de los datos reales (Negros)
         geom_point(aes(y = mau), color = "black", alpha = 0.4) +
-        
-        # Capa 2: Línea conectando los puntos reales (Gris)
         geom_line(aes(y = mau), color = "gray", alpha = 0.8) +
-        
-        # Capa 3: Línea de tendencia (Principal, azul, gruesa)
         geom_line(aes(y = fit), color = "blue", size = 1.2) +
         
-        # Capa 4: Líneas de Confianza (azules, sólidas, finas)
+        # Confident Lines
         geom_line(aes(y = upr_conf), color = "blue", linetype = "solid", size = 0.7) +
         geom_line(aes(y = lwr_conf), color = "blue", linetype = "solid", size = 0.7) +
 
-        # Capa 5: Líneas de Predicción (azules, discontinuas)
+        # Predict Lines
         geom_line(aes(y = upr_pred), color = "blue", linetype = "dashed") +
         geom_line(aes(y = lwr_pred), color = "blue", linetype = "dashed") +
         
-        # Capa 6: Títulos y etiquetas
         labs(
             title = "Monthly Active Users (MAU 30-day rolling) with Trend",
             x = "Date",
             y = "Number of Users (MAU 30-day)"
         ) +
-        
-        # Capa 7: Ajuste de los ejes (marcas mensuales)
+
         scale_x_date(
             date_breaks = "1 month", 
             date_labels = "%b-%Y"  # Formato "Jan-2023"
         ) +
-        
-        # Capa 8: Tema limpio
+     
         theme_minimal() +
-        
-        # Capa 9: Rotar las etiquetas del eje X
         theme(
             axis.text.x = element_text(
                 angle = 45,
