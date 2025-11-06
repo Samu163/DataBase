@@ -48,7 +48,7 @@ if (!isset($data['session_id']) || !isset($data['item']) ||
 $session_id = (int)$data['session_id']; 
 $item = (int)$data['item']; 
 $dayTime = $conn->real_escape_string($data['dayTime']); 
-$price = (int)$data['price']; 
+$price = (float)$data['price']; 
 
 // Verificar que la sesión existe en Sesions (con S mayúscula)
 $check_sql = "SELECT session_id FROM Sesions WHERE session_id = $session_id";

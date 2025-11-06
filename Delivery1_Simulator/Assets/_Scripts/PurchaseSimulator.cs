@@ -11,9 +11,9 @@ public class PurchaseData
     public int session_id;
     public int item;
     public string dayTime;
-    public int price;
+    public float price;
 
-    public PurchaseData(int sessionId, int itemId, string purchaseTime, int itemPrice)
+    public PurchaseData(int sessionId, int itemId, string purchaseTime, float itemPrice)
     {
         this.session_id = sessionId;
         this.item = itemId;
@@ -36,13 +36,13 @@ public class PurchaseSimulator : MonoBehaviour
     private const string PURCHASE_URL = "https://citmalumnes.upc.es/~samuelm1/purchase.php";
     public SessionSimulator sessionSimulator;
 
-    private Dictionary<int, int> itemPrices = new Dictionary<int, int>()
+    private Dictionary<int, float> itemPrices = new Dictionary<int, float>()
     {
-        { 1, 100 },   // Item común
-        { 2, 250 },   // Item poco común
-        { 3, 500 },   // Item raro
-        { 4, 1000 },  // Item épico
-        { 5, 2500 }   // Item legendario
+        { 1, 0.99f }, 
+        { 2, 1.99f },  
+        { 3, 9.99f },   
+        { 4, 49.99f }, 
+        { 5, 99.99f }   
     };
 
     void OnEnable()
@@ -58,7 +58,7 @@ public class PurchaseSimulator : MonoBehaviour
     {
         int dbSessionId = sessionSimulator.GetDatabaseSessionId(sessionId);
 
-        int price = itemPrices.ContainsKey(itemId) ? itemPrices[itemId] : 0;
+        float price = itemPrices.ContainsKey(itemId) ? itemPrices[itemId] : 0;
 
         PurchaseData purchaseData = new PurchaseData(
             dbSessionId,
