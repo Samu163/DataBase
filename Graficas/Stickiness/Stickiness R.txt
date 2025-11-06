@@ -1,0 +1,113 @@
+# --- INICIO DEL CÓDIGO ---
+
+# 1. INSTALAR Y CARGAR PAQUETES
+# install.packages("ggplot2") # Descomenta si no lo tienes
+library(ggplot2)
+
+# 2. CARGAR LOS DATOS
+# ¡¡CAMBIA "tu_archivo.csv" POR EL NOMBRE CORRECTO DE TU ARCHIVO!!
+df_stick <- read.csv("tu_archivo.csv") 
+
+# 3. VERIFICAR COLUMNAS (NUEVO PASO DE DEBUG)
+# Esto imprimirá los nombres de las columnas en tu consola
+# Confirma que ves "day" y "stickiness_percentage"
+print("Columnas cargadas en el archivo:")
+print(names(df_stick))
+
+# 4. PREPARAR LOS DATOS
+# Usando la columna 'day'
+df_stick$day <- as.Date(df_stick$day, format = "%Y-%m-%d")
+
+
+# 5. ESTABLECER IDIOMA PARA LAS FECHAS
+tryCatch({
+  Sys.setlocale("LC_TIME", "en_US.UTF-8")
+}, error = function(e) {
+  tryCatch({
+    Sys.setlocale("LC_TIME", "English_United States")
+  }, error = function(e_win) {
+    print("Warning: Could not set locale to English. Month names may use system language.")
+  })
+})
+
+
+# 6. CÁLCULO MANUAL DEL MODELO Y PREDICCIONES
+# Filtramos filas con NA (usando el nombre CORREGIDO)
+df_stick <- df_stick[!is.na(df_stick$stickiness_percentage), ]
+
+if (nrow(df_stick) > 0) {
+    
+    # 6.1. Creamos el modelo lineal (nombre CORREGIDO)
+    model_stick <- lm(stickiness_percentage ~ as.numeric(day), data = df_stick)
+    
+    # 6.2. Obtenemos el INTERVALO DE CONFIANZA (95%)
+    pred_conf_stick <- predict(model_stick, interval = "confidence", level = 0.95)
+    
+    # 6.3. Obtenemos el INTERVALO DE PREDICCIÓN (95%)
+    pred_pred_stick <- predict(model_stick, interval = "prediction", level = 0.95)
+
+    # 6.4. Combinamos TODO en un solo data frame (nombre CORREGIDO)
+    df_completo_stick <- data.frame(
+      day = df_stick$day,
+      stickiness = df_stick$stickiness_percentage, # Usamos el nombre correcto
+      fit = pred_conf_stick[, "fit"],      
+      lwr_conf = pred_conf_stick[, "lwr"],  
+      upr_conf = pred_conf_stick[, "upr"],  
+      lwr_pred = pred_pred_stick[, "lwr"],  
+      upr_pred = pred_pred_stick[, "upr"]   
+    )
+    
+
+    # 7. CREAR LA GRÁFICA CON TODAS LAS LÍNEAS
+    
+    ggplot(data = df_completo_stick, aes(x = day)) +
+        
+        # Capa 1: Puntos de los datos reales (Negros)
+        geom_point(aes(y = stickiness), color = "black", alpha = 0.4) +
+        
+        # Capa 2: Línea conectando los puntos reales (Gris)
+        geom_line(aes(y = stickiness), color = "gray", alpha = 0.8) +
+        
+        # Capa 3: Línea de tendencia (Principal, azul, gruesa)
+        geom_line(aes(y = fit), color = "blue", size = 1.2) +
+        
+        # Capa 4: Líneas de Confianza (azules, sólidas, finas)
+        geom_line(aes(y = upr_conf), color = "blue", linetype = "solid", size = 0.7) +
+        geom_line(aes(y = lwr_conf), color = "blue", linetype = "solid", size = 0.7) +
+
+        # Capa 5: Líneas de Predicción (azules, discontinuas)
+        geom_line(aes(y = upr_pred), color = "blue", linetype = "dashed") +
+        geom_line(aes(y = lwr_pred), color = "blue", linetype = "dashed") +
+        
+        # Capa 6: Títulos y etiquetas
+        labs(
+            title = "Stickiness (DAU/MAU) with Trend & Prediction Lines",
+            x = "Date",
+            y = "Stickiness (%)"
+        ) +
+        
+        # Capa 7: Ajuste de los ejes (marcas mensuales)
+        scale_x_date(
+            date_breaks = "1 month", 
+            date_labels = "%b-%Y"  # Formato "Jan-2023"
+        ) +
+        
+        # Capa 8: Tema limpio
+        theme_minimal() +
+        
+        # Capa 9: Rotar las etiquetas del eje X
+        theme(
+            axis.text.x = element_text(
+                angle = 45,
+                hjust = 1,
+                vjust = 1
+            )
+        )
+    
+} else {
+    # Este error ahora significa que el archivo no se cargó o que TODAS
+    # las filas de 'stickiness_percentage' tienen valor NA.
+    print("Data frame is empty, has NAs, or was not loaded correctly.")
+}
+
+# --- FIN DEL CÓDIGO ---
