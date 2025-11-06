@@ -1,0 +1,38 @@
+# install.packages("tidyverse")library(tidyverse)
+
+df_stick_age <- read.csv("tu_archivo_stickiness_age.csv")
+
+
+if (nrow(df_stick_age) > 0) {
+    
+    ggplot(data = df_stick_age, aes(x = reorder(age_range, -avg_stickiness), 
+                                   y = avg_stickiness, 
+                                   fill = age_range)) +
+        
+        geom_bar(stat = "identity") +
+        
+        geom_text(
+          aes(label = paste0(round(avg_stickiness, 1), "%")), 
+          vjust = -0.5,
+          size = 3.5
+        ) +
+        
+        labs(
+            title = "Average Stickiness by Age Range",
+            x = "Age Range", 
+            y = "Average Stickiness (%)"
+        ) +
+        
+        theme_minimal() +
+        
+        theme(
+            axis.text.x = element_text(
+                angle = 45,
+                hjust = 1,
+                vjust = 1
+            ),
+            legend.position = "none")
+    
+} else {
+    print("Data frame is empty, has NAs, or was not loaded correctly.")
+}
