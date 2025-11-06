@@ -1,19 +1,7 @@
-# --- INICIO DEL CÓDIGO ---
-
-# 1. INSTALAR Y CARGAR PAQUETES
-# install.packages("ggplot2") # Descomenta si no lo tienes
 library(ggplot2)
-
-# 2. CARGAR LOS DATOS
-# Asegúrate de que "Datos - DAU.csv" esté en tu directorio de trabajo
 df <- read.csv("Datos - DAU.csv")
-
-# 3. PREPARAR LOS DATOS
-# Asumo que tus columnas se llaman 'day' y 'dau'
 df$day <- as.Date(df$day, format = "%Y-%m-%d")
 
-
-# 4. ESTABLECER IDIOMA PARA LAS FECHAS (IMPORTANTE)
 tryCatch({
   Sys.setlocale("LC_TIME", "en_US.UTF-8")
 }, error = function(e) {
@@ -24,72 +12,47 @@ tryCatch({
   })
 })
 
-
-# 5. CÁLCULO MANUAL DEL MODELO Y PREDICCIONES
-if (nrow(df) > 0) {
-    
-    # 5.1. Creamos el modelo lineal
+if (nrow(df) > 0) {  
     model <- lm(dau ~ as.numeric(day), data = df)
-    
-    # 5.2. Obtenemos el INTERVALO DE CONFIANZA (Confidence)
-    # Nivel 0.95 es el por defecto
     pred_conf <- predict(model, interval = "confidence", level = 0.95)
-    
-    # 5.3. Obtenemos el INTERVALO DE PREDICCIÓN (Prediction) ¡NUEVO!
-    # Añadido 'level = 0.95' explícitamente como pediste
     pred_pred <- predict(model, interval = "prediction", level = 0.95)
 
-    # 5.4. Combinamos TODO en un solo data frame
     df_completo <- data.frame(
       day = df$day,
       dau = df$dau,
-      fit = pred_conf[, "fit"],      # Línea de tendencia
-      lwr_conf = pred_conf[, "lwr"],  # Límite bajo de Confianza
-      upr_conf = pred_conf[, "upr"],  # Límite alto de Confianza
-      lwr_pred = pred_pred[, "lwr"],  # Límite bajo de Predicción
-      upr_pred = pred_pred[, "upr"]   # Límite alto de Predicción
+      fit = pred_conf[, "fit"],     
+      lwr_conf = pred_conf[, "lwr"],  
+      upr_conf = pred_conf[, "upr"],  
+      lwr_pred = pred_pred[, "lwr"],  
+      upr_pred = pred_pred[, "upr"]  
     )
-    
-
-    # 6. CREAR LA GRÁFICA CON TODAS LAS LÍNEAS
-    
-    ggplot(data = df_completo, aes(x = day)) +
         
-        # Capa 1: Puntos de los datos reales (Negros)
-        geom_point(aes(y = dau), color = "black", alpha = 0.4) +
-        
-        # Capa 2: Línea conectando los puntos reales (Gris)
+    ggplot(data = df_completo, aes(x = day)) +      
+	geom_point(aes(y = dau), color = "black", alpha = 0.4) +
         geom_line(aes(y = dau), color = "gray", alpha = 0.8) +
-        
-        # Capa 3: Línea de tendencia (Principal, azul, gruesa)
         geom_line(aes(y = fit), color = "blue", size = 1.2) +
         
-        # Capa 4: Líneas de Confianza (azules, sólidas, finas)
+        # Confident Lines
         geom_line(aes(y = upr_conf), color = "blue", linetype = "solid", size = 0.7) +
         geom_line(aes(y = lwr_conf), color = "blue", linetype = "solid", size = 0.7) +
 
-        # Capa 5: Líneas de Predicción (azules, discontinuas)
+        # Prediction Lines
         # linetype = "dashed" es el equivalente a lty = 2
         geom_line(aes(y = upr_pred), color = "blue", linetype = "dashed") +
         geom_line(aes(y = lwr_pred), color = "blue", linetype = "dashed") +
         
-        # Capa 6: Títulos y etiquetas
         labs(
             title = "DAU with Trend, Confidence (95%) & Prediction (95%) Lines",
             x = "Date",
             y = "Number of Users"
         ) +
         
-        # Capa 7: Ajuste de los ejes
         scale_x_date(
             date_breaks = "15 days",
             date_labels = "%d-%b"
         ) +
         
-        # Capa 8: Tema limpio
         theme_minimal() +
-        
-        # Capa 9: Rotar las etiquetas del eje X
         theme(
             axis.text.x = element_text(
                 angle = 45,
@@ -101,5 +64,3 @@ if (nrow(df) > 0) {
 } else {
     print("Data frame is empty or was not loaded correctly.")
 }
-
-# --- FIN DEL CÓDIGO ---
