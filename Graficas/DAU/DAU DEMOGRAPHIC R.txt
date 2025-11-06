@@ -1,0 +1,63 @@
+# --- INICIO DEL CÓDIGO ---
+
+# 1. INSTALAR Y CARGAR PAQUETES
+# install.packages("tidyverse") # Descomenta esta línea si no tienes el paquete 'tidyverse'
+library(tidyverse)
+
+# 2. CARGAR LOS DATOS
+# ¡¡CAMBIA "tu_archivo_dau_demo.csv" POR EL NOMBRE DE TU ARCHIVO!!
+df_dau_demo <- read.csv("tu_archivo_dau_demo.csv")
+
+# 3. VERIFICAR COLUMNAS (DEBUG)
+# Confirma que ves "country" y "avg_dau"
+print("Columnas cargadas en el archivo:")
+print(names(df_dau_demo))
+
+# 4. PREPARAR LOS DATOS (opcional, por si acaso)
+# Filtramos filas con NA en 'avg_dau'
+df_dau_demo <- df_dau_demo %>%
+  filter(!is.na(avg_dau))
+
+
+# 5. CREAR LA GRÁFICA DE BARRAS
+if (nrow(df_dau_demo) > 0) {
+    
+    # 'reorder(country, -avg_dau)' ordena las barras de mayor a menor
+    ggplot(data = df_dau_demo, aes(x = reorder(country, -avg_dau), y = avg_dau)) +
+        
+        # Capa 1: Las barras (color azul)
+        geom_bar(stat = "identity", fill = "steelblue") +
+        
+        # Capa 2: Texto con el valor encima de cada barra
+        # 'round(..., 1)' redondea el número a 1 decimal
+        geom_text(
+          aes(label = round(avg_dau, 1)), 
+          vjust = -0.5, # Ajusta la posición vertical del texto
+          size = 3.5
+        ) +
+        
+        # Capa 3: Títulos y etiquetas
+        labs(
+            title = "Average DAU by Country",
+            x = "Country",
+            y = "Average DAU"
+        ) +
+        
+        # Capa 4: Tema limpio
+        theme_minimal() +
+        
+        # Capa 5: Rotar las etiquetas del eje X (importante)
+        theme(
+            axis.text.x = element_text(
+                angle = 45,
+                hjust = 1,
+                vjust = 1
+            ),
+            legend.position = "none" # Quitamos la leyenda (no es necesaria)
+        )
+    
+} else {
+    print("Data frame is empty, has NAs, or was not loaded correctly.")
+}
+
+# --- FIN DEL CÓDIGO ---
