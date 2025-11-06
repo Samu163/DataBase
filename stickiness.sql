@@ -5,22 +5,22 @@ WITH dau_daily AS (
     FROM Sesions
     GROUP BY DATE(start)
 ),
-
-usuarios_por_dia AS (
+mau_daily AS (
     SELECT 
-        DATE(start) AS activity_date,
-        player_id
-    FROM Sesions
+        d.day,
+        COUNT(DISTINCT s.player_id) AS mau
+    FROM (SELECT DISTINCT DATE(start) AS day FROM Sesions) d
+    LEFT JOIN Sesions s 
+        ON DATE(s.start) <= d.day 
+        AND DATE(s.start) > DATE_SUB(d.day, INTERVAL 30 DAY)
+    GROUP BY d.day
 )
-
 SELECT 
-    d.day,
-    d.dau,
-    COUNT(DISTINCT u.player_id) AS mau_30_days,
-    ROUND(d.dau / COUNT(DISTINCT u.player_id) * 100, 2) AS stickiness_percent
-FROM dau_daily d
-LEFT JOIN usuarios_por_dia u 
-    ON u.activity_date <= d.day 
-    AND u.activity_date > DATE_SUB(d.day, INTERVAL 30 DAY)
-GROUP BY d.day, d.dau
-ORDER BY d.day;
+    dau.day,
+    dau.dau,
+    mau.mau,
+    ROUND((dau.dau / mau.mau) * 100, 2) AS stickiness_percentage
+FROM dau_daily dau
+JOIN mau_daily mau ON dau.day = mau.day
+ORDER BY dau.day;
+

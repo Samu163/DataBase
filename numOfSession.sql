@@ -1,7 +1,6 @@
 SELECT
-    DATE(StartTime) AS session_date,
-    COUNT(SessionID) AS number_of_sessions
+    DATE(start) AS session_date,
+    COUNT(session_id) AS number_of_sessions
 FROM
-    Sessions
-GROUP BY
-    session_date
+    Sesions
+ GROUP BY DATE(start)
