@@ -22,7 +22,7 @@ if (nrow(df_mau) > 0) {
 
     df_completo_mau <- data.frame(
       day = df_mau$day,
-      mau = df_mau$mau_30_days, # Usamos 'mau_30_days' como el valor Y
+      mau = df_mau$mau_30_days, 
       fit = pred_conf_mau[, "fit"],      
       lwr_conf = pred_conf_mau[, "lwr"],  
       upr_conf = pred_conf_mau[, "upr"],  
@@ -53,7 +53,7 @@ if (nrow(df_mau) > 0) {
 
         scale_x_date(
             date_breaks = "1 month", 
-            date_labels = "%b-%Y"  # Formato "Jan-2023"
+            date_labels = "%b-%Y"
         ) +
      
         theme_minimal() +
@@ -68,5 +68,3 @@ if (nrow(df_mau) > 0) {
 } else {
     print("Data frame is empty or was not loaded correctly.")
 }
-
-# --- FIN DEL CÓDIGO ---

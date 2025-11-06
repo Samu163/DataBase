@@ -20,9 +20,8 @@ if (nrow(df_ret_long) > 0) {
        
         geom_text(
           aes(label = round(percentage, 1)), 
-          # 'position_dodge' alinea el texto con su barra correspondiente
           position = position_dodge(width = 0.9), 
-          vjust = -0.5, # Ajusta la posición vertical del texto
+          vjust = -0.5, 
           size = 3
         ) +
         
@@ -31,7 +30,7 @@ if (nrow(df_ret_long) > 0) {
             title = "Retention (D1, D3, D7) by Country",
             x = "Country",
             y = "Retention Percentage (%)",
-            fill = "Retention Type" # Título para la leyenda
+            fill = "Retention Type"
         ) +
         
 	theme_minimal() +    

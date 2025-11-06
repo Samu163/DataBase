@@ -54,7 +54,7 @@ if (nrow(df_stick) > 0) {
         
         scale_x_date(
             date_breaks = "1 month", 
-            date_labels = "%b-%Y"  # Formato "Jan-2023"
+            date_labels = "%b-%Y" 
         ) +
         
         theme_minimal() +

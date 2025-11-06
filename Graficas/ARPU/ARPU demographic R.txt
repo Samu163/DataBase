@@ -17,7 +17,6 @@ if (nrow(df_arpu_demo) > 0) {
         
        
         geom_text(
-          # Usamos round(..., 2) para mostrar valores como 1.50
           aes(label = round(arpu, 2)), 
           vjust = -0.5,
           size = 3.5

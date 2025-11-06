@@ -26,7 +26,7 @@ if (nrow(df_avg) > 0) {
         geom_bar(stat = "identity") +        
         geom_text(
           aes(label = paste0(round(average_percentage, 1), "%")), 
-          vjust = -0.5 # Ajusta la posición vertical del texto
+          vjust = -0.5
         ) +
         
         labs(
