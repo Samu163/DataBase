@@ -1,40 +1,23 @@
-# --- INICIO DEL CÓDIGO ---
-
-# 1. INSTALAR Y CARGAR PAQUETES
-# install.packages("tidyverse") # Descomenta esta línea si no tienes el paquete 'tidyverse'
 library(tidyverse)
 
-# 2. CARGAR LOS DATOS
-# ¡¡CAMBIA "tu_archivo_ret_demo.csv" POR EL NOMBRE DE TU ARCHIVO!!
 df_ret_demo <- read.csv("tu_archivo_ret_demo.csv")
 
-# 3. VERIFICAR COLUMNAS (DEBUG)
-# Confirma que ves "country", "d1_retention", "d3_retention", "d7_retention"
-print("Columnas cargadas en el archivo:")
-print(names(df_ret_demo))
-
-# 4. PREPARAR LOS DATOS (PIVOTAR DE ANCHO A LARGO)
-# Esto es clave para agrupar las barras
 df_ret_long <- df_ret_demo %>%
   pivot_longer(
     cols = c("d1_retention", "d3_retention", "d7_retention"),
-    names_to = "retention_type", # Nueva columna para "D1", "D3", "D7"
-    values_to = "percentage"     # Nueva columna para los valores
+    names_to = "retention_type", 
+    values_to = "percentage"    
   ) %>%
-  filter(!is.na(percentage)) # Elimina filas donde el porcentaje es NA
+  filter(!is.na(percentage)) 
 
 
-# 5. CREAR LA GRÁFICA DE BARRAS AGRUPADAS
 if (nrow(df_ret_long) > 0) {
     
-    # 'fill = retention_type' asigna los colores y crea la leyenda
-    ggplot(data = df_ret_long, aes(x = country, y = percentage, fill = retention_type)) +
+      ggplot(data = df_ret_long, aes(x = country, y = percentage, fill = retention_type)) +
         
-        # Capa 1: Las barras
-        # 'position = "dodge"' es lo que pone las barras una al lado de la otra
         geom_bar(stat = "identity", position = position_dodge(width = 0.9)) +
         
-        # Capa 2: Texto con el valor encima de cada barra
+       
         geom_text(
           aes(label = round(percentage, 1)), 
           # 'position_dodge' alinea el texto con su barra correspondiente
@@ -43,7 +26,7 @@ if (nrow(df_ret_long) > 0) {
           size = 3
         ) +
         
-        # Capa 3: Títulos y etiquetas
+       
         labs(
             title = "Retention (D1, D3, D7) by Country",
             x = "Country",
@@ -51,10 +34,7 @@ if (nrow(df_ret_long) > 0) {
             fill = "Retention Type" # Título para la leyenda
         ) +
         
-        # Capa 4: Tema limpio
-        theme_minimal() +
-        
-        # Capa 5: Rotar las etiquetas del eje X (importante)
+	theme_minimal() +    
         theme(
             axis.text.x = element_text(
                 angle = 45,
@@ -63,8 +43,8 @@ if (nrow(df_ret_long) > 0) {
             )
         )
     
-} else {
-    print("Data frame is empty, has NAs, or was not loaded correctly.")
+} 
+else
+{
+    print("Data frame is empty")
 }
-
-# --- FIN DEL CÓDIGO ---
