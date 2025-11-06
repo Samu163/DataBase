@@ -24,7 +24,7 @@ if (nrow(df_stick) > 0) {
 
     df_completo_stick <- data.frame(
       day = df_stick$day,
-      stickiness = df_stick$stickiness_percentage, # Usamos el nombre correcto
+      stickiness = df_stick$stickiness_percentage, 
       fit = pred_conf_stick[, "fit"],      
       lwr_conf = pred_conf_stick[, "lwr"],  
       upr_conf = pred_conf_stick[, "upr"],  
@@ -70,4 +70,5 @@ if (nrow(df_stick) > 0) {
 else 
 {
         print("Data frame is empty")
+
 }

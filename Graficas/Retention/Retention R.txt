@@ -6,10 +6,10 @@ df_ret <- read.csv("tu_archivo.csv")
 df_ret_long <- df_ret %>%
   pivot_longer(
     cols = c("d1_percentage", "d3_percentage", "d7_percentage"),
-    names_to = "retention_type", # Nueva columna para "D1", "D3", "D7"
-    values_to = "percentage"     # Nueva columna para los valores
+    names_to = "retention_type", 
+    values_to = "percentage"    
   ) %>%
-  filter(!is.na(percentage)) # Elimina filas donde el porcentaje es NA
+  filter(!is.na(percentage))
 
 df_avg <- df_ret_long %>%
   group_by(retention_type) %>%
@@ -42,4 +42,5 @@ if (nrow(df_avg) > 0) {
 else 
 {
     print("Data frame is empty")
+
 }
