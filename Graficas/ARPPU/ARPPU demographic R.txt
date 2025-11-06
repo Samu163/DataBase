@@ -1,36 +1,21 @@
-# --- INICIO DEL CÓDIGO ---
 
-# 1. INSTALAR Y CARGAR PAQUETES
-# install.packages("tidyverse") # Descomenta esta línea si no tienes el paquete 'tidyverse'
 library(tidyverse)
 
-# 2. CARGAR LOS DATOS
-# ¡¡CAMBIA "tu_archivo_arppu_demo.csv" POR EL NOMBRE DE TU ARCHIVO!!
 df_arppu_demo <- read.csv("tu_archivo_arppu_demo.csv")
 
-# 3. VERIFICAR COLUMNAS (DEBUG)
-# Confirma que ves "country" y "arppu"
-print("Columnas cargadas en el archivo:")
-print(names(df_arppu_demo))
 
-# 4. PREPARAR LOS DATOS
-# Filtramos filas con NA en 'arppu'
 df_arppu_demo <- df_arppu_demo %>%
   filter(!is.na(arppu))
 
 
-# 5. CREAR LA GRÁFICA DE BARRAS
 if (nrow(df_arppu_demo) > 0) {
     
-    # 1. Añadimos 'fill = country' dentro de aes()
     ggplot(data = df_arppu_demo, aes(x = reorder(country, -arppu), 
                                    y = arppu, 
                                    fill = country)) +
         
-        # 2. Capa de Barras
         geom_bar(stat = "identity") +
         
-        # 3. Capa de Texto (con 2 decimales para ARPPU)
         geom_text(
           # Usamos round(..., 2) para mostrar valores como 1.50
           aes(label = round(arppu, 2)), 
@@ -38,28 +23,24 @@ if (nrow(df_arppu_demo) > 0) {
           size = 3.5
         ) +
         
-        # 4. Títulos y etiquetas
         labs(
             title = "ARPPU by Country",
             x = "Country",
             y = "ARPPU"
         ) +
         
-        # 5. Tema limpio
+      
         theme_minimal() +
-        
-        # 6. Rotar etiquetas Y QUITAR LA LEYENDA
         theme(
             axis.text.x = element_text(
                 angle = 45,
                 hjust = 1,
                 vjust = 1
             ),
-            legend.position = "none" # Quitamos la leyenda de colores
-        )
+            legend.position = "none"         )
     
-} else {
-    print("Data frame is empty, has NAs, or was not loaded correctly.")
+} 
+else
+ {
+    print("Data frame is empty")
 }
-
-# --- FIN DEL CÓDIGO ---

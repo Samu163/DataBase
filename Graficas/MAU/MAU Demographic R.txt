@@ -1,64 +1,42 @@
-# --- INICIO DEL CÓDIGO ---
-
-# 1. INSTALAR Y CARGAR PAQUETES
-# install.packages("tidyverse") # Descomenta esta línea si no tienes el paquete 'tidyverse'
 library(tidyverse)
 
-# 2. CARGAR LOS DATOS
-# ¡¡CAMBIA "tu_archivo_mau_demo.csv" POR EL NOMBRE DE TU ARCHIVO!!
 df_mau_demo <- read.csv("tu_archivo_mau_demo.csv")
 
-# 3. VERIFICAR COLUMNAS (DEBUG)
-print("Columnas cargadas en el archivo:")
-print(names(df_mau_demo))
-
-# 4. PREPARAR LOS DATOS
 df_mau_demo <- df_mau_demo %>%
   filter(!is.na(avg_mau))
 
-
-# 5. CREAR LA GRÁFICA DE BARRAS
 if (nrow(df_mau_demo) > 0) {
     
-    # --- CAMBIO AQUÍ ---
-    # 1. Añadimos 'fill = country' dentro de aes()
     ggplot(data = df_mau_demo, aes(x = reorder(country, -avg_mau), 
                                    y = avg_mau, 
                                    fill = country)) +
-        
-        # --- CAMBIO AQUÍ ---
-        # 2. Quitamos el 'fill = "steelblue"' de aquí
         geom_bar(stat = "identity") +
         
-        # Capa 2: Texto con el valor encima de cada barra
         geom_text(
           aes(label = round(avg_mau, 1)), 
           vjust = -0.5,
           size = 3.5
         ) +
         
-        # Capa 3: Títulos y etiquetas
         labs(
             title = "Average MAU by Country",
             x = "Country",
             y = "Average MAU"
         ) +
         
-        # Capa 4: Tema limpio
         theme_minimal() +
         
-        # Capa 5: Rotar etiquetas Y QUITAR LA LEYENDA (importante)
         theme(
             axis.text.x = element_text(
                 angle = 45,
                 hjust = 1,
                 vjust = 1
             ),
-            legend.position = "none" # Quitamos la leyenda de colores
+            legend.position = "none" 
         )
     
-} else {
-    print("Data frame is empty, has NAs, or was not loaded correctly.")
+} 
+else 
+{
+    print("Data frame is empty")
 }
-
-# --- FIN DEL CÓDIGO ---
